@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ApiServerSelector, type: :service do
-  let(:servers) { [ "http://localhost:3000", "http://localhost:8080", "http://localhost:8000" ] }
+  let(:servers) { [ "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3002" ] }
 
   describe ".servers" do
     it { expect(ApiServerSelector.servers).to eq(servers) }
@@ -20,7 +20,7 @@ RSpec.describe ApiServerSelector, type: :service do
 
     context "when healthy? sometimes return true" do
       before { allow(ApiServerSelector).to receive(:healthy?).and_return(true, false, true) }
-      it { expect(ApiServerSelector.healthy_servers).to eq([ "http://localhost:3000", "http://localhost:8000" ]) }
+      it { expect(ApiServerSelector.healthy_servers).to eq([ "http://127.0.0.1:3000", "http://127.0.0.1:3002" ]) }
     end
   end
 
@@ -31,19 +31,19 @@ RSpec.describe ApiServerSelector, type: :service do
       context "and when index is at 0" do
         before { ApiServerSelector.class_variable_set(:@@index, 0) }
         it { expect { ApiServerSelector.next }.to change { ApiServerSelector.class_variable_get(:@@index) }.from(0).to(1) }
-        it { expect(ApiServerSelector.next).to eq("http://localhost:3000") }
+        it { expect(ApiServerSelector.next).to eq("http://127.0.0.1:3000") }
       end
 
       context "and when index is at 1" do
         before { ApiServerSelector.class_variable_set(:@@index, 1) }
         it { expect { ApiServerSelector.next }.to change { ApiServerSelector.class_variable_get(:@@index) }.from(1).to(2) }
-        it { expect(ApiServerSelector.next).to eq("http://localhost:8080") }
+        it { expect(ApiServerSelector.next).to eq("http://127.0.0.1:3001") }
       end
 
       context "and when index is at 2" do
         before { ApiServerSelector.class_variable_set(:@@index, 2) }
         it { expect { ApiServerSelector.next }.to change { ApiServerSelector.class_variable_get(:@@index) }.from(2).to(0) }
-        it { expect(ApiServerSelector.next).to eq("http://localhost:8000") }
+        it { expect(ApiServerSelector.next).to eq("http://127.0.0.1:3002") }
       end
     end
 
@@ -54,19 +54,19 @@ RSpec.describe ApiServerSelector, type: :service do
 
     context "when there are some healthy servers" do
       before do
-        allow(ApiServerSelector).to receive(:healthy_servers).and_return([ "http://localhost:3000", "http://localhost:8000" ])
+        allow(ApiServerSelector).to receive(:healthy_servers).and_return([ "http://127.0.0.1:3000", "http://127.0.0.1:3002" ])
       end
 
       context "and when index is at 0" do
         before { ApiServerSelector.class_variable_set(:@@index, 0) }
         it { expect { ApiServerSelector.next }.to change { ApiServerSelector.class_variable_get(:@@index) }.from(0).to(1) }
-        it { expect(ApiServerSelector.next).to eq("http://localhost:3000") }
+        it { expect(ApiServerSelector.next).to eq("http://127.0.0.1:3000") }
       end
 
       context "and when index is at 1" do
         before { ApiServerSelector.class_variable_set(:@@index, 1) }
         it { expect { ApiServerSelector.next }.to change { ApiServerSelector.class_variable_get(:@@index) }.from(1).to(0) }
-        it { expect(ApiServerSelector.next).to eq("http://localhost:8000") }
+        it { expect(ApiServerSelector.next).to eq("http://127.0.0.1:3002") }
       end
     end
   end

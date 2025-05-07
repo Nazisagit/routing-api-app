@@ -1,3 +1,5 @@
+require "net/http"
+
 class ApiServerSelector
   CONFIG_PATH = Rails.root.join("config/api_servers.yml")
   HEALTH_PATH = "/up".freeze
